@@ -1,0 +1,51 @@
+package com.exist.model;
+
+public class Contact {
+	private int id;
+	private ContactType contactType;
+	private String value;
+	private Person person;
+
+	public Contact(){}
+
+	public Contact(ContactType contactType, String value){
+		this.contactType = contactType;
+		this.value = value;
+	}
+
+	public int getId(){
+		return this.id;
+	}
+
+	public void setId(int id){
+		this.id = id;
+	}
+
+	public ContactType getType(){
+		return this.contactType;
+	}
+
+	public void setType(ContactType contactType){
+		this.contactType = contactType;
+	}
+
+	public String getValue(){
+		return this.value;
+	}
+
+	public void setValue(String value){
+		this.value = value;
+	}
+
+	public Person getPerson(){
+		return this.person;
+	}
+
+	public void setPerson(Person person){
+		this.person = person;
+	}
+
+	public String toString(){
+		return this.contactType + ": " + this.value;
+	}
+}
