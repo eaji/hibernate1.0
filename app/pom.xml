@@ -26,28 +26,6 @@
          </plugin>
       </plugins>
    </build>
-
-
-<!--
-
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-	    <configuration>
-	      <archive>
-	         <manifest>
-		   <mainClass>com.exist.App</mainClass>
-	         </manifest>
-	      </archive>
-	    </configuration>
-         </plugin>
-      </plugins>
-   </build>
--->
-
-
 </project>
 
 

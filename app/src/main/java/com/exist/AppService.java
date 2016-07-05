@@ -23,7 +23,11 @@ public class AppService {
 		System.out.println("5. ADD PERSON CONTACT");
 		System.out.println("6. UPDATE PERSON CONTACT");
 		System.out.println("7. DELETE PERSON CONTACT");
-		System.out.println("8. EXIT");
+		System.out.println("8. LIST ROLES");
+		System.out.println("9. ADD PERSON ROLE");
+		System.out.println("10. UPDATE PERSON ROLE");
+		System.out.println("11. DELETE PERSON ROLE");
+		System.out.println("12. EXIT");
 		System.out.print("Enter Equivalent Number of Command: ");
 	}
 
@@ -43,19 +47,19 @@ public class AppService {
 			}
 
 			if(sortBy.equalsIgnoreCase("l") && order.equalsIgnoreCase("a")) {
-				listPersonsByLastNameAsc();
+				listPersonsSortedBy(1, 1);
 			}
 
 			else if(sortBy.equalsIgnoreCase("l") && order.equalsIgnoreCase("d")) {
-				listPersonsByLastNameDesc();
+				listPersonsSortedBy(1, 2) ;
 			}
 
 			else if(sortBy.equalsIgnoreCase("d") && order.equalsIgnoreCase("a")) {
-				listPersonsByDateHiredAsc();
+				listPersonsSortedBy(2, 1);
 			}
 
 			else if(sortBy.equalsIgnoreCase("d") && order.equalsIgnoreCase("d")) {
-				listPersonsByDateHiredDesc();
+				listPersonsSortedBy(2, 2);
 			}
 			else if(sortBy.equalsIgnoreCase("g") && order.equalsIgnoreCase("a")) {
 				listPersonsByGwaAsc();
@@ -66,23 +70,8 @@ public class AppService {
 		}
 	}
 
-	public void listPersonsByLastNameAsc() {
-		List<Person> persons  = appServiceManager.getPersonsSortedByLastNameAsc();
-		displayPersonsTable(persons);
-	}
-
-	public void listPersonsByLastNameDesc() {
-		List<Person> persons  = appServiceManager.getPersonsSortedByLastNameDesc();
-		displayPersonsTable(persons);
-	}
-
-	public void listPersonsByDateHiredAsc() {
-		List<Person> persons  = appServiceManager.getPersonsSortedByDateHiredAsc();
-		displayPersonsTable(persons);
-	}
-
-	public void listPersonsByDateHiredDesc() {
-		List<Person> persons  = appServiceManager.getPersonsSortedByDateHiredDesc();
+	public void listPersonsSortedBy(int id1, int id2) {
+		List<Person> persons  = appServiceManager.getPersonsSortedBy(id1, id2);
 		displayPersonsTable(persons);
 	}
 
@@ -93,22 +82,25 @@ public class AppService {
 	}
 	public void listPersonsByGwaDesc() {
 		List<Person> persons  = appServiceManager.getAllPersons();
-		Collections.sort(persons ,Collections.reverseOrder());
+		Collections.sort(persons, Collections.reverseOrder());
 		displayPersonsTable(persons); 			
 	}
 
 	public void addPerson() {
 		Person person = new Person();
 		Address address = new Address();
-		createUpdatePerson(person);
-		createUpdateAddress(address);
-		Set<Contact> contacts = createContacts();
-		for(Contact c : contacts) {
-			c.setPerson(person);
+		Person newPerson = createUpdatePerson(person);
+		Address newAddress = createUpdateAddress(address);
+		List<Contact> contacts = createContacts();
+		List<Role> roles = createRoles();
+		for(Contact contact : contacts) {
+			contact.setPerson(newPerson);
 		}
-		person.setAddress(address);
-		person.setContacts(contacts);
-		appServiceManager.addPerson(person);
+		newPerson.setAddress(newAddress);
+		newAddress.setPerson(newPerson);
+		newPerson.setContacts(contacts);
+		newPerson.setRoles(roles);
+		appServiceManager.addPerson(newPerson);
 		System.out.println("Person Successfully added!");
 	}
 
@@ -126,15 +118,14 @@ public class AppService {
 				toUpdateAddress = in.nextLine();
 			}
 			if(toUpdateAddress.equalsIgnoreCase("y")) {
-	    		Address updatedAddress = createUpdateAddress(updatedPerson.getAddress());
-	    		appServiceManager.updateAddress(updatedAddress);
+	    		Address updatedAddress = createUpdateAddress(person.getAddress());
+	    		updatedPerson.setAddress(updatedAddress);
 	    	} else {
 				System.out.println("The old address is retained.");
 			}
 
 			appServiceManager.updatePerson(updatedPerson);
-	    	appServiceManager.updateAddress(person.getAddress());											
-			System.out.println("Successfully updated!");
+			System.out.println("Successfully updated!");		 
 		}
 	}
 
@@ -144,17 +135,20 @@ public class AppService {
 		boolean isEmployed;
 		String dateHired;
 		Date dHired = null;
+		Name name = new Name();
+
 		System.out.print("First name: ");
 		String firstName = isValidWord(in.nextLine(), "Please input a valid first name: ");
-		person.setFirstName(firstName);
+		name.setFirstName(firstName);
 
 		System.out.print("Middle name: ");
 		String middleName = isValidWord(in.nextLine(), "Please input a valid middle name: ");
-		person.setMiddleName(middleName);
+		name.setMiddleName(middleName);
 
 		System.out.print("Last name: ");
 		String lastName = isValidWord(in.nextLine(), "Please input a valid last name: ");
-		person.setLastName(lastName);
+		name.setLastName(lastName);
+		person.setName(name);
 
 		System.out.print("Birthdate (yyyy/mm/dd): ");
 		String birthDate = isValidDate(in.nextLine());
@@ -235,7 +229,6 @@ public class AppService {
 		System.out.print("Zip code: ");
 		String zipCode = isValidNumber(in.nextLine(), "Please input a valid zip code: ");
 		address.setZipCode(zipCode);
-
 		return address;
 	}
 
@@ -243,8 +236,12 @@ public class AppService {
 		if(hasAvailablePerson()) {
 			displayShortPersonsTable(appServiceManager.getAllPersons());
 			String personId = getValidPersonId();
-			Contact contact = createContact();
-			appServiceManager.addPersonContactById(Integer.parseInt(personId), contact);
+			List<Contact> personContacts = new ArrayList<>(appServiceManager.getContactsByPersonId(Integer.parseInt(personId)));
+			System.out.println("Adding new contact...");
+			Contact newContact = createContact();
+			newContact.setPerson(appServiceManager.getPersonById(Integer.parseInt(personId)));
+			personContacts.add(newContact);
+			appServiceManager.addPersonContactById(Integer.parseInt(personId), personContacts);
 			System.out.println("Contact succesfully added!");
 		}
 	}
@@ -275,9 +272,9 @@ public class AppService {
 		return new Contact(convertToTypeEnum(contactType), value);
 	}
 
-	private Set<Contact> createContacts() {
+	private List<Contact> createContacts() {
 		boolean toAddContact = true;														
-		Set<Contact> contacts = new HashSet<>();
+		List<Contact> contacts = new ArrayList<>();
 		while(toAddContact) {
 			contacts.add(createContact());
 			System.out.print("Add another contact (y/n): ");
@@ -301,7 +298,7 @@ public class AppService {
 			displayShortPersonsTable(appServiceManager.getAllPersons());
 			String personId = getValidPersonId();
 			if(hasAvailableContact(personId)) {
-				Set<Contact> contacts = appServiceManager.getContactsByPersonId(Integer.parseInt(personId));
+				List<Contact> contacts = appServiceManager.getContactsByPersonId(Integer.parseInt(personId));
 				displayContactsTable(contacts);
 		        String contactId = getValidPersonContactId(personId);
 
@@ -317,7 +314,7 @@ public class AppService {
 			displayShortPersonsTable(appServiceManager.getAllPersons());
 			String personId = getValidPersonId();
 			if(hasAvailableContact(personId)) {
-				Set<Contact> contacts = appServiceManager.getContactsByPersonId(Integer.parseInt(personId));
+				List<Contact> contacts = appServiceManager.getContactsByPersonId(Integer.parseInt(personId));
 				displayContactsTable(contacts);
 		        String contactId = getValidPersonContactId(personId);
 
@@ -327,20 +324,185 @@ public class AppService {
 		}
 	}
 
+	public void showAllRoles() {
+		if(hasAvailablePerson()) {
+			List<Role> roles = appServiceManager.getAllRoles();
+			displayRolesTable(roles);
+		}
+	}
+
+	public void addRoleById() {
+		if(hasAvailablePerson()) {
+			displayShortPersonsTable(appServiceManager.getAllPersons());
+			String personId = getValidPersonId();
+			List<Role> personRoles = new ArrayList<>(appServiceManager.getRolesByPersonId(Integer.parseInt(personId)));
+
+			if(personRoles.size() < appServiceManager.getAllRoles().size()) {
+				System.out.println("Adding new role...");
+				Role newRole = getRoleToAdd(personId, personRoles);
+				personRoles.add(newRole);
+				appServiceManager.manipulatePersonRoleById(Integer.parseInt(personId), personRoles);
+				System.out.println("Role succesfully added!");
+			} else {
+				System.out.println("Transaction Failed. Chosen person reached max. no. of roles assigned.");
+			}
+		}
+	}
+
+	public List<Role> createRoles(){
+		boolean toAddRole = true;
+		List<Role> roles = new ArrayList<Role>();
+
+		while(toAddRole && roles.size() < appServiceManager.getAllRoles().size()) {
+			roles.add(createRole(roles));
+			System.out.print("Add another role (y/n): ");
+			String choice = in.nextLine();
+			while(!(choice.matches("[ynYN]$")) || choice.isEmpty()) {
+				System.out.print("(y/n) only: ");
+				choice = in.nextLine();
+			}
+			if(choice.equalsIgnoreCase("y")) {
+				toAddRole = true;
+			}
+			else {
+				toAddRole = false;
+			}
+		}
+		return roles;
+	}	
+
+	public Role getRoleToAdd(String personId, List<Role> newRoles) {
+		String choice = "";
+		int counter = 1;
+		List<Role> allRoles = new ArrayList<>(appServiceManager.getAllRoles());
+
+		displayRolesTable(allRoles);
+		
+		while(!(choice.matches("[1-4]$")) || choice.isEmpty() || counter > 0) { 
+			counter = 0;
+			System.out.print("Enter equivalent number of role not yet assigned: ");
+			choice = isValidRoleNumber(in.nextLine());
+			for(Role role : newRoles) {
+	        	if(role.toString().equalsIgnoreCase((allRoles.get(Integer.parseInt(choice) - 1)).toString())) {
+		        	counter++;
+		       	}
+	        }
+	    } 
+		return allRoles.get(Integer.parseInt(choice) - 1);
+	}
+
+	public Role getRoleToDelete(String personId) {
+		String choice = "";
+		Boolean matchesRoleToDelete = false;
+		List<Role> personRoles = new ArrayList<>( appServiceManager.getRolesByPersonId(Integer.parseInt(personId)) );
+		List<Role> allRoles = new ArrayList<>(appServiceManager.getAllRoles());
+
+        do {
+        	displayRolesTable(personRoles);
+	        System.out.print("Enter equivalent number of assigned role: ");
+	        choice = isValidRoleNumber(in.nextLine());
+
+			for (Role role : personRoles) { 
+				String stringRole = role.toString();
+				if(role.toString().equalsIgnoreCase((allRoles.get(Integer.parseInt(choice) - 1)).toString())) {
+	        		matchesRoleToDelete = true;
+	        		break;
+	        	}
+	        	else {
+	        		matchesRoleToDelete = false;
+	        	}
+			}
+	    } while(!(choice.matches("[1-4]$")) || choice.isEmpty() || matchesRoleToDelete == false);
+		return allRoles.get(Integer.parseInt(choice) - 1);
+	}
+
+	public void updateRoleById() {
+		if(hasAvailablePerson()) {
+			displayShortPersonsTable(appServiceManager.getAllPersons());
+			List<Role> newRoles = new ArrayList<>();
+			String personId = getValidPersonId();
+			if(hasAvailableRole(personId)) {
+				List<Role> personRoles = new ArrayList<>(appServiceManager.getRolesByPersonId(Integer.parseInt(personId)));
+				System.out.println("Choosing role to be updated... ");
+				Role roleToDelete = getRoleToDelete(personId);
+				System.out.println();
+
+				for(Role role : personRoles) {
+					if(!(roleToDelete.toString().equalsIgnoreCase(role.toString()))) {
+						newRoles.add(role);
+					}
+				}
+				System.out.println("Choosing new role... ");
+				Role roleToAdd = getRoleToAdd(personId, newRoles);
+				newRoles.add(roleToAdd);
+
+				appServiceManager.manipulatePersonRoleById(Integer.parseInt(personId), newRoles);
+				System.out.println("Role succesfully updated!");
+			}
+		}
+	}
+
+	public void deleteRoleById() {
+		if(hasAvailablePerson()) {
+			displayShortPersonsTable(appServiceManager.getAllPersons());
+			List<Role> newRoles = new ArrayList<>();
+			String personId = getValidPersonId();
+			if(hasAvailableRole(personId)) {
+				List<Role> personRoles = appServiceManager.getRolesByPersonId(Integer.parseInt(personId));
+		        System.out.println("Choosing role to be deleted...");
+				Role roleToDelete = getRoleToDelete(personId);
+
+				for(Role role : personRoles) {
+					if(!(roleToDelete.toString().equalsIgnoreCase(role.toString()))) {
+						newRoles.add(role);
+					}
+				}
+				appServiceManager.manipulatePersonRoleById(Integer.parseInt(personId), newRoles);
+				System.out.println("Role successfully deleted!");
+			}
+		}
+	}
+
+	public Role createRole(List<Role> roles) {
+		String choice = "";
+		int counter = 1;
+		List<Role> allRoles = new ArrayList<>(appServiceManager.getAllRoles());
+
+		displayRolesTable(allRoles);
+		while(!(choice.matches("[1-4]$")) || choice.isEmpty() || counter > 0) { 
+			counter = 0;
+			System.out.print("Enter equivalent number of role not yet assigned: ");
+			choice = isValidRoleNumber(in.nextLine());
+			for(Role role : roles) {
+	        	if(role.toString().equalsIgnoreCase((allRoles.get(Integer.parseInt(choice) - 1)).toString())) {
+		        	counter++;
+		       	}
+		    }
+		}
+		return allRoles.get(Integer.parseInt(choice) - 1);
+	}
+
 	private void displayPersonsTable(List<Person> persons) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------------");
-		System.out.println(String.format("%-5s%-30s%-5s%-40s%-12s%-5s%-9s%-10s%-1s","|p_id","|full_name","|a_id","|complete_address","|birthdate","|gwa","|date_hired","|employed","|contacts","|"));
+		System.out.println(String.format("%-5s%-20s%-5s%-30s%-10s%-3s%-10s%-8s%-37s%-1s","|p_id","|full_name","|a_id","|complete_address","|birthdate","|gwa","|date_hired","|employed","|roles","|contacts","|"));
 		System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------------");
 		for (Person p : persons) {
 			Address address = p.getAddress();
-			Set<Contact> contacts = p.getContacts();
 			String completeAddress = address.getStreetNumber() + " " + address.getBarangay() + " " + address.getCity() + " " + address.getZipCode();
+			List<Contact> contacts = p.getContacts();
 			String completeContact = "";
 			for(Contact c : contacts) {
-				completeContact = completeContact + " " + c.getContactType() + ":" + c.getValue();
+				completeContact = completeContact + " " +  c.toString();
 			}
-			System.out.println(String.format("%-5s%-30s%-5s%-40s%-12s%-5s%-9s%-10s%-1s","|"+p.getId(),"|"+p.getFullName(),"|"+p.getAddress().getId(),"|"+completeAddress,"|"+dateFormat.format(p.getBirthdate()),"|"+p.getGwa(),"|"+dateFormat.format(p.getDateHired()),"|"+p.isEmployed(),"|"+completeContact,"|"));
+			List<Role> roles = p.getRoles();
+			String completeRoles = "";
+			for(Role r : roles) {
+				completeRoles = completeRoles + " " + r.toString();
+			}
+
+
+			System.out.println(String.format("%-5s%-20s%-5s%-30s%-10s%-3s%-10s%-8s%-37s%-1s","|"+p.getId(),"|"+p.getName().getFullName(),"|"+p.getAddress().getId(),"|"+completeAddress,"|"+dateFormat.format(p.getBirthdate()),"|"+p.getGwa(),"|"+dateFormat.format(p.getDateHired()),"|"+p.isEmployed(),"|"+completeRoles,"|"+completeContact,"|"));
 		}
 		System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------");
 	}
@@ -350,12 +512,12 @@ public class AppService {
 		System.out.println(String.format("%-5s%-30s%-1s","|p_id","|full_name","|"));
 		System.out.println("------------------------------------");		
 		for (Person p : persons) {
-			System.out.println(String.format("%-5s%-30s%-1s","|"+p.getId(),"|"+p.getFullName(),"|"));	
+			System.out.println(String.format("%-5s%-30s%-1s","|"+p.getId(),"|"+p.getName().getFullName(),"|"));	
 		}
 		System.out.println("------------------------------------");		
 	}
 
-	private void displayContactsTable(Set<Contact> contacts) {
+	private void displayContactsTable(List<Contact> contacts) {
 		System.out.println("--------------------------------------------------------");		
 		System.out.println(String.format("%-5s%-15s%-35s%-1s","|c_id","|contact_type","|value","|"));
 		System.out.println("--------------------------------------------------------");		
@@ -363,6 +525,16 @@ public class AppService {
 			System.out.println(String.format("%-5s%-15s%-35s%-1s","|"+c.getId(),"|"+c.getContactType(),"|"+c.getValue(),"|"));	
 		}
 		System.out.println("--------------------------------------------------------");		
+	}
+
+	private void displayRolesTable(List<Role> roles) {
+		System.out.println("------------------------------------");		
+		System.out.println(String.format("%-5s%-30s%-1s","|r_id","|role","|"));
+		System.out.println("------------------------------------");		
+		for (Role r : roles){
+			System.out.println(String.format("%-5s%-30s%-1s","|"+r.getId(),"|"+r.getRole(),"|"));	
+		}
+		System.out.println("------------------------------------");		
 	}
 
 	private ContactType convertToTypeEnum(String type) {
@@ -386,6 +558,13 @@ public class AppService {
 	private String isValidNumber(String number, String errMsg) {
 		while(!(number.matches("\\d+$")) || number.isEmpty()) {
             System.out.print(errMsg);
+            number = in.nextLine();
+        }
+    	return number;
+	}
+
+	private String isValidRoleNumber(String number) {
+		while(!(number.matches("[1-4]$")) || number.isEmpty()) {
             number = in.nextLine();
         }
     	return number;
@@ -417,6 +596,15 @@ public class AppService {
 		return contactId;
 	}
 
+	private String isValidPersonRoleId(String roleId, String personId) {
+		List<Role> personRoles = appServiceManager.getRolesByPersonId(Integer.parseInt(personId));
+		while(!(roleId.matches("\\d+$")) || roleId.isEmpty()) {
+			System.out.print("Please enter a valid id: ");
+			roleId = in.nextLine();
+		}
+		return roleId;
+	}
+
 	private String getValidPersonId() {
 		System.out.print("Person id: ");									
 		String id = isValidPersonId(in.nextLine());
@@ -443,6 +631,16 @@ public class AppService {
 		Set<Integer> contactIds = appServiceManager.getPersonContactIds(Integer.parseInt(personId));
 		if(contactIds.isEmpty()) {
 			System.out.println("Transaction Failed. No contact available for this person. Please add first.");
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	private boolean hasAvailableRole(String personId) {
+		List<Role> personRoles = appServiceManager.getRolesByPersonId(Integer.parseInt(personId));
+		if(personRoles.isEmpty()) {
+			System.out.println("Transaction Failed. No role available for this person. Please add first.");
 			return false;
 		} else {
 			return true;

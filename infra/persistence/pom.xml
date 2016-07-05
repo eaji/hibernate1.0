@@ -19,7 +19,7 @@
         <filtering>true</filtering>
         <includes>
           <include>**/hibernate.cfg.xml</include>
-          <include>**/Person.hbm.xml</include>
+<!--          <include>**/Person.hbm.xml</include>  -->
         </includes>
       </resource>
     </resources>

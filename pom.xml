@@ -16,8 +16,12 @@
     <snapshot.version>1.0-SNAPSHOT</snapshot.version>
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
     <java.version>1.8</java.version>
-	<hibernate.version>5.2.0.Final</hibernate.version>
-	<postgresql.version>9.4-1201-jdbc41</postgresql.version>
+  	<hibernate.version>5.2.0.Final</hibernate.version>
+    <postgresql.version>9.4-1201-jdbc41</postgresql.version>
+    <annotations.version>3.5.6-Final</annotations.version>
+  	<ehcache.version>5.2.0.Final</ehcache.version>
+    <ehcache-core.version>2.6.11</ehcache-core.version>
+    <slf4j.version>1.5.0</slf4j.version>   
   </properties>
 
   <dependencyManagement>
@@ -36,48 +40,74 @@
         <groupId>com.exist</groupId>
         <artifactId>app</artifactId>
         <version>${snapshot.version}</version>
-	  </dependency>
-	  <dependency>
-		<groupId>com.exist</groupId>
-		<artifactId>core</artifactId>
-		<version>${snapshot.version}</version>
-	  </dependency>
-	  <dependency>
+      </dependency>
+  	  <dependency>
+  		  <groupId>com.exist</groupId>
+  		  <artifactId>core</artifactId>
+  		  <version>${snapshot.version}</version>
+  	  </dependency>
+  	  <dependency>
         <groupId>com.exist.dao</groupId>
         <artifactId>dao</artifactId>
- 	    <version>${snapshot.version}</version>
+   	    <version>${snapshot.version}</version>
       </dependency>
-	  <dependency>
+  	  <dependency>
         <groupId>com.exist.model</groupId>
         <artifactId>model</artifactId>
- 	    <version>${snapshot.version}</version>
-  	  </dependency>
-	  <dependency>
-		<groupId>com.exist.service</groupId>
-		<artifactId>service</artifactId>
-		<version>${snapshot.version}</version>
-	  </dependency>
+   	    <version>${snapshot.version}</version>
+    	</dependency>
+  	  <dependency>
+  		  <groupId>com.exist.service</groupId>
+  		  <artifactId>service</artifactId>
+  		  <version>${snapshot.version}</version>
+        </dependency>
       <dependency>
-        <groupId>com.exist</groupId>
-        <artifactId>infra</artifactId>
-        <version>${snapshot.version}</version>
+          <groupId>com.exist</groupId>
+          <artifactId>infra</artifactId>
+          <version>${snapshot.version}</version>
       </dependency>
-	  <dependency>
+  	  <dependency>
         <groupId>com.exist.infra</groupId>
         <artifactId>persistence</artifactId>
- 	    <version>${snapshot.version}</version>
-  	  </dependency>
+   	    <version>${snapshot.version}</version>
+    	</dependency>
       <dependency>
         <groupId>com.exist</groupId>
         <artifactId>utilities</artifactId>
         <version>${snapshot.version}</version>
       </dependency>
-	  <dependency>
+  	  <dependency>
         <groupId>com.exist.util</groupId>
         <artifactId>utilities</artifactId>
         <version>${snapshot.version}</version>
-  	  </dependency>
-    </dependencies>
+    	</dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-annotations</artifactId>  
+        <version>${annotations.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-ehcache</artifactId>  
+        <version>${ehcache.version}</version>
+      </dependency>   
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-core</artifactId> 
+        <version>${ehcache-core.version}</version>
+      </dependency>   
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>   
+<!--      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1.1</version>
+      </dependency> -->
+    </dependencies>   
   </dependencyManagement>
 
 

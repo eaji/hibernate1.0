@@ -3,13 +3,10 @@ CREATE TABLE person (
 	last_name VARCHAR(255),
 	first_name VARCHAR(255),
 	middle_name VARCHAR(255),
-	address_id INT UNIQUE NOT NULL,
 	birthdate date,
 	gwa real,
 	date_hired date,
-	employed boolean,
-	CONSTRAINT address_fkey FOREIGN KEY (address_id)
-    REFERENCES address(id)
+	employed boolean
 );
 
 --CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');

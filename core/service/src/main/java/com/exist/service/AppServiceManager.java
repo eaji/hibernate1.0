@@ -6,12 +6,9 @@ import java.util.*;
 
 public class AppServiceManager {
 	private PersonDao p = new PersonDao();
-	private AddressDao a = new AddressDao();
-	private ContactDao c = new ContactDao();
+	private RoleDao r = new RoleDao();
 
 	public void addPerson(Person person){
-		Address address = a.addAddress(person.getAddress());
-		person.setAddress(address);
 		p.addPerson(person);
 	}
 
@@ -20,7 +17,6 @@ public class AppServiceManager {
 	}
 
 	public void deletePersonById(int id) {
-		//Person person = p.getPersonById(id);
 		p.deletePersonById(id);
 	}
 
@@ -28,20 +24,12 @@ public class AppServiceManager {
 		return p.getAllPersons();
 	}
 
-	public List<Person> getPersonsSortedByLastNameAsc() {
-		return p.getPersonsSortedByLastNameAsc();
+	public List<Person> getPersonsSortedBy(int id1, int id2) {
+		return p.getPersonsSortedBy(id1, id2);
 	}
 
-	public List<Person> getPersonsSortedByLastNameDesc() {
-		return p.getPersonsSortedByLastNameDesc();
-	}
-
-	public List<Person> getPersonsSortedByDateHiredAsc() {
-		return p.getPersonsSortedByDateHiredAsc();
-	}
-
-	public List<Person> getPersonsSortedByDateHiredDesc() {
-		return p.getPersonsSortedByDateHiredDesc();
+	public int getPersonsCount() {
+		return p.getPersonsCount();
 	}
 
 	public Person getPersonById(int id) {
@@ -49,23 +37,23 @@ public class AppServiceManager {
 	}
 
 	public void updateAddress(Address address) {
-		a.updateAddress(address);
+		p.updateAddress(address);
 	}
 
-	public Set<Contact> getContactsByPersonId(int id) {
-		return c.getContactsByPersonId(id);
+	public List<Contact> getContactsByPersonId(int id) {
+		return p.getContactsByPersonId(id);
 	}
 
-	public void addPersonContactById(int id, Contact contact) {
-		c.addPersonContact(id, contact);
+	public void addPersonContactById(int id, List<Contact> newContacts) {
+		p.addPersonContactById(id, newContacts);
 	}
 
 	public void updatePersonContactById(int id, Contact contact) {
-		c.updatePersonContactById(id, contact);
+		p.updatePersonContactById(id, contact);
 	}
 
 	public void deletePersonContactById(int id) {
-		c.deleteContactById(id);
+		p.deletePersonContactById(id);
 	}
 
 	public Set<Integer> getPersonIds() {
@@ -73,7 +61,19 @@ public class AppServiceManager {
 	}
 
 	public Set<Integer> getPersonContactIds(int id) {
-		return c.getPersonContactIds(id);
+		return p.getPersonContactIds(id);
+	}
+
+	public List<Role> getAllRoles() {
+		return r.getAllRoles();
+	}
+
+	public List<Role> getRolesByPersonId(int id) {
+		return r.getRolesByPersonId(id);
+	}
+
+	public void manipulatePersonRoleById(int id, List<Role> personRoles) {
+		r.manipulatePersonRoleById(id, personRoles);
 	}
 
 }

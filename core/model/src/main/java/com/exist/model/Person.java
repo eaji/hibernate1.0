@@ -1,23 +1,33 @@
 package com.exist.model;
 
-import java.util.*;
 
+import java.util.*; 
+import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+
+
+@Entity
+@Table(name = "PERSON")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region="Person")
 public class Person implements Comparable<Person> {
 	private int id;
-	private String lastName;
-	private String firstName;
-	private String middleName;
-	private String fullName;
+	private Name name;
 	private Address address;
-	private Contact contact;
 	private Date birthdate;
 	private float gwa;
 	private Date dateHired;
 	private boolean employed;
-	private Set<Contact> contacts;
+	private List<Contact> contacts;
+	private List<Role> roles;
 
 	public Person(){};
 
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
 	public int getId() {
 		return id;
 	}
@@ -26,34 +36,16 @@ public class Person implements Comparable<Person> {
 		this.id = id;
 	}
 
-	public String getLastName() {
-		return lastName;
+	@Embedded
+	public Name getName() {
+		return name;
 	}
 
-	public void setLastName(String lastName)  {
-		this.lastName = lastName;
+	public void setName(Name name) {
+		this.name = name;
 	}
 
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName)  {
-		this.firstName = firstName;
-	}
-
-	public String getMiddleName() {
-		return middleName;
-	}
-
-	public void setMiddleName(String middleName) {
-		this.middleName = middleName;
-	}
-
-	public String getFullName() {
-		return fullName = this.firstName + " " + this.middleName + " " + this.lastName;
-	}
-
+	@OneToOne(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	public Address getAddress() {
 		return address;
 	}
@@ -62,6 +54,7 @@ public class Person implements Comparable<Person> {
 		this.address = address;
 	}
 
+	@Column(name = "birthdate")
 	public Date getBirthdate() {
 		return birthdate;
 	}
@@ -70,6 +63,7 @@ public class Person implements Comparable<Person> {
 		this.birthdate = birthdate;
 	}
 
+	@Column(name = "gwa")
 	public float getGwa() { 
 		return gwa;
 	}
@@ -78,6 +72,7 @@ public class Person implements Comparable<Person> {
 		this.gwa = gwa;
 	}
 
+	@Column(name = "date_hired")
 	public Date getDateHired() {
 		return dateHired;
 	}
@@ -86,6 +81,7 @@ public class Person implements Comparable<Person> {
 		this.dateHired = dateHired;
 	}
 
+	@Column(name = "employed")
 	public boolean isEmployed() {
 		return employed;
 	}
@@ -94,22 +90,29 @@ public class Person implements Comparable<Person> {
 		this.employed = employed;
 	}
 
-	public Contact getContact() {
-		return contact;
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "person_role", joinColumns = { 
+			@JoinColumn(name = "person_id", nullable = false, updatable = false) }, 
+			inverseJoinColumns = { @JoinColumn(name = "role_id", 
+					nullable = false, updatable = false) })
+	public List<Role> getRoles(){
+		return this.roles;
 	}
 
-	public void setContact(Contact contact) {
-		this.contact = contact;
+	public void setRoles(List<Role> roles){
+		this.roles = roles;
 	}
 
-	public Set<Contact> getContacts() {
+	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	public List<Contact> getContacts() {
 		return contacts;
 	}
 
-	public void setContacts(Set<Contact> contacts) {
+	public void setContacts(List<Contact> contacts) {
 		this.contacts = contacts;
 	}
 
+	@Override
 	public int compareTo(Person comparePerson) {
 		float compareGwa = ((Person) comparePerson).getGwa(); 
 		float diff = this.gwa - compareGwa;
@@ -120,7 +123,6 @@ public class Person implements Comparable<Person> {
 		 } else {
 		 	return 0;
 		 }
-
 	}	
 
 }

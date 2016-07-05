@@ -4,5 +4,5 @@ CREATE TABLE contact (
 	value VARCHAR(255),
 	person_id INT UNIQUE NOT NULL,
     CONSTRAINT person_fkey FOREIGN KEY (person_id)
-    REFERENCES person (id) ON DELETE CASCADE
+    REFERENCES person (id)
 );

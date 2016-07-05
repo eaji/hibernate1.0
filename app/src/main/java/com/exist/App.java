@@ -11,7 +11,7 @@ public class App {
         while(continueProcess) {
             appService.commands();
             String choice = in.nextLine();
-            while(!(choice.matches("[0-8]$")) || choice.isEmpty()) {
+            while(!(choice.matches("([1-9]|1[012])$")) || choice.isEmpty()) {
                 System.out.print("Please enter equivalent number of command: ");
                 choice = in.nextLine();
             }
@@ -29,8 +29,16 @@ public class App {
                 case 6: appService.updateContactById();
                     break;
                 case 7: appService.deleteContactById();
-                    break;  
-                case 8: continueProcess = false;
+                    break;
+                case 8: appService.showAllRoles();
+                    break;
+                case 9: appService.addRoleById();
+                    break;
+                case 10: appService.updateRoleById();
+                    break;         
+                case 11: appService.deleteRoleById();
+                    break;              
+                case 12: continueProcess = false;
                     System.exit(0);
                     break;
                 default: System.out.println("Command not found!");
